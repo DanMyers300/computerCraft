@@ -7,26 +7,24 @@ local direction     --current direction turtle is facing
 
 local function fuelCheck()
     if turtle.getFuelLevel() == 0 then
-        for i = 1, 16 do
+        for i=1,15,1 do
             if turtle.getFuelLevel() > 0 then
                 break
             end
-
-            turtle.select(i)
             
-            if turtle.getItemDetail() and turtle.getItemDetail().name ~= "minecraft:oak_sapling" then
+            turtle.select(i)
+
+            if turtle.getItemDetail().name ~= "minecraft:oak_sapling" then
                 turtle.refuel(1)
             end
         end
     end
 
     if turtle.getFuelLevel() < 1 then
-        print("Out of Fuel")
-        returnHome()
+        print("OH FUCK OH SHIT, WE OUT OF FUEL ABORT")
         os.exit()
     end
 end
-
 
 local function up()
     fuelCheck()
@@ -57,7 +55,7 @@ local function forward()
         elseif direction == 3 then
             pos.x = pos.x - 1
         else
-            print("Unknown direction")
+            print("Oh shit what direction are we even facing???? OH FUCK OH GOD. ABORT")
             os.exit()
         end
     end
@@ -101,6 +99,8 @@ local function mineTree()
     while pos.y > 0 do
         down()
     end
+
+
 end
 
 local function plantSapling()
@@ -167,11 +167,30 @@ local function depositeWood()
     end
 end
 
+local function restockSaplings()
+    while direction ~= 3 do
+        right()
+    end
+
+    local i = 1
+    while i <= 16 do
+        turtle.select(i)
+        local itemDetails = turtle.getItemDetail()
+        if itemDetails ~= nil and itemDetails.name == "minecraft:oak_sapling" then
+            turtle.drop()
+        end
+        i = i + 1
+    end
+
+    turtle.select(1)
+    turtle.suck()
+end
+
 local function init()
     width = 5;
     length = 5;
     treeDistance = 1;
-    sleepTime = 1;
+    sleepTime = 1 --300 --Sleep Time is 5 minutes
     pos = {
         x=0,
         y=0,
@@ -182,28 +201,16 @@ end
 
 local function loop()
     while true do
-        local turnRight = true
+        local turnRight = true;
+        restockSaplings()
 
-        for wid = 1, width do
-            for len = 1, length do
-                -- Move to the position where we need to plant
-                moveToNextTree()
-                plantSapling()  -- Plant sapling at the current position
-            end
-            if wid < width then
-                turnAround(true)  -- Turn around for the next row
-            end
-        end
-    
-        returnHome()  -- Go home after initial planting
-        -- Move through the tree farm
         while direction ~= 0 do
             right()
         end
 
-        local widDist = 0
-        while widDist < width do
-            local lenDist = 0
+        local widDist=0
+        while widDist < width  do
+            local lenDist=0
             while lenDist < length do
                 moveToNextTree()
                 mineTree()
@@ -217,7 +224,6 @@ local function loop()
 
         returnHome()
         depositeWood()
-
         os.sleep(sleepTime)
     end
 end
