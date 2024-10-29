@@ -72,13 +72,7 @@ local function startup()
         print("Missing saplings or fuel. Please check inventory.")
         return false
     end
-    for i = 1, 2 do
-        local success, err = turtle.forward()
-        if not success then
-            print("Failed to move forward during startup: " .. (err or "unknown error"))
-            return false
-        end
-    end
+
     return true
 end
 
@@ -156,6 +150,7 @@ end
 local function loop()
     for row = 1, 5 do
         for slot = 1, 13 do
+            findItems()
             refuel()
             checkAndBreak()
             plantSapling()
