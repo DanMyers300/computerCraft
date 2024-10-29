@@ -97,7 +97,7 @@ local function startup()
     for slot = 1, 16 do
         if slot ~= saplingSlot and slot ~= fuelSlot then
             turtle.select(slot)
-            local _, err = turtle.suckDown(); if err then error(err); return false; end
+            local _, err = turtle.suckDown(); if err then print(err); end
             findItems()
         end
     end
