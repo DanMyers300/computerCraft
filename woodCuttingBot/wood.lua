@@ -1,5 +1,7 @@
 --
 -- Turtle Woodcutter Script
+-- luacheck: ignore turtle
+-- luacheck: ignore os
 --
 
 local saplingSlot = nil
@@ -10,12 +12,17 @@ local function findItems()
         local itemDetail = turtle.getItemDetail(slot)
         if itemDetail then
             print("Found item: " .. itemDetail.name .. " in slot " .. slot)
-            if itemDetail.name == "minecraft:oak_sapling" and not saplingSlot then
+            if itemDetail.name == "minecraft:oak_sapling" and itemDetail.count >= 25 then
                 saplingSlot = slot
                 print("Sapling found in slot " .. slot)
-            elseif itemDetail.name == "minecraft:coal" or itemDetail.name == "minecraft:charcoal" then
+            else
+                error("Not enough saplings: " .. itemDetail.count .. " - slot: ".. slot)
+            end
+            if itemDetail.name == "minecraft:coal" or itemDetail.name == "minecraft:charcoal" then
                 fuelSlot = slot
                 print("Fuel found in slot " .. slot)
+            else
+                error("No fuel")
             end
         end
         if saplingSlot and fuelSlot then
@@ -67,11 +74,18 @@ local function startup()
     refuel()
     print("Sapling Slot: " .. tostring(saplingSlot))
     print("Fuel Slot: " .. tostring(fuelSlot))
-    
     if not hasSaplings() or fuelSlot == nil then
         print("Missing saplings or fuel. Please check inventory.")
         return false
     end
+
+    turtle.dropDown(saplingSlot)
+    turtle.suckDown()
+    findItems()
+    turtle.forward()
+    turtle.dropDown(fuelSlot)
+    turtle.suckDown()
+    findItems()
 
     return true
 end
@@ -144,13 +158,11 @@ local function returnToHome()
         if not moveForward() then return end
     end
     turtle.turnLeft()
-    os.sleep(5)
 end
 
 local function loop()
     for row = 1, 5 do
         for slot = 1, 13 do
-            findItems()
             refuel()
             checkAndBreak()
             plantSapling()
@@ -162,8 +174,15 @@ end
 
 local function main()
     if startup() then
-        loop()
-        returnToHome()
+        if loop() then
+            if returnToHome() then
+                os.sleep(5)
+            else
+                print("returntoHome failed")
+            end
+        else
+            print("Loop failed")
+        end
     else
         print("Startup failed. Exiting script.")
     end
