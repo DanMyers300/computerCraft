@@ -5,15 +5,17 @@
 local saplingSlot = nil
 local fuelSlot = nil
 
--- Function to find the slots for saplings and fuel
 local function findItems()
     for slot = 1, 16 do
         local itemDetail = turtle.getItemDetail(slot)
         if itemDetail then
+            print("Found item: " .. itemDetail.name .. " in slot " .. slot)
             if itemDetail.name == "minecraft:oak_sapling" and not saplingSlot then
                 saplingSlot = slot
+                print("Sapling found in slot " .. slot)
             elseif itemDetail.name == "minecraft:coal" or itemDetail.name == "minecraft:charcoal" then
                 fuelSlot = slot
+                print("Fuel found in slot " .. slot)
             end
         end
         if saplingSlot and fuelSlot then
@@ -22,12 +24,10 @@ local function findItems()
     end
 end
 
--- Function to check if the turtle has saplings
 local function hasSaplings()
     return saplingSlot ~= nil
 end
 
--- Function to refuel the turtle
 local function refuel()
     if turtle.getFuelLevel() < 1 and hasSaplings() then
         turtle.select(fuelSlot)
@@ -39,7 +39,6 @@ local function refuel()
     end
 end
 
--- Function to check and break the tree
 local function checkAndBreak()
     if turtle.detect() then
         if not turtle.dig() then
@@ -48,7 +47,6 @@ local function checkAndBreak()
     end
 end
 
--- Function to check if planting is possible and plant sapling
 local function plantSapling()
     if saplingSlot then
         turtle.select(saplingSlot)
@@ -66,13 +64,18 @@ end
 
 local function startup()
     findItems()
+    refuel()
+    print("Sapling Slot: " .. tostring(saplingSlot))
+    print("Fuel Slot: " .. tostring(fuelSlot))
+    
     if not hasSaplings() or fuelSlot == nil then
         print("Missing saplings or fuel. Please check inventory.")
         return false
     end
     for i = 1, 2 do
-        if not turtle.forward() then
-            print("Failed to move forward during startup.")
+        local success, err = turtle.forward()
+        if not success then
+            print("Failed to move forward during startup: " .. (err or "unknown error"))
             return false
         end
     end
@@ -82,8 +85,9 @@ end
 local function rowLeft()
     turtle.turnLeft()
     for _ = 1, 3 do
-        if not turtle.forward() then
-            print("Failed to move forward in rowLeft.")
+        local success, err = turtle.forward()
+        if not success then
+            print("Failed to move forward in rowLeft: " .. (err or "unknown error"))
             return false
         end
     end
@@ -93,8 +97,9 @@ end
 local function rowRight()
     turtle.turnRight()
     for _ = 1, 3 do
-        if not turtle.forward() then
-            print("Failed to move forward in rowRight.")
+        local success, err = turtle.forward()
+        if not success then
+            print("Failed to move forward in rowRight: " .. (err or "unknown error"))
             return false
         end
     end
@@ -113,43 +118,39 @@ end
 
 local function runThroughRow(slot)
     if slot < 13 then
-        if not turtle.forward() then
-            print("Failed to move forward in runThroughRow.")
+        local success, err = turtle.forward()
+        if not success then
+            print("Failed to move forward in runThroughRow: " .. (err or "unknown error"))
             return false
         end
     end
 end
 
 local function returnToHome()
-    turtle.turnLeft()
-    for _ = 1, 8 do
-        if not turtle.forward() then
-            print("Failed to return home.")
-            return
+    local function moveForward()
+        refuel()
+        local success, err = turtle.forward()
+        if not success then
+            print("Error moving forward: " .. (err or "unknown error"))
+            return false
         end
+        return true
+    end
+
+    turtle.turnLeft()
+    for _ = 1, 2 do
+        if not moveForward() then return end
     end
     turtle.turnLeft()
-    for _ = 1, 20 do
-        if not turtle.forward() then
-            print("Failed to return home.")
-            return
-        end
+    for _ = 1, 14 do
+        if not moveForward() then return end
     end
     turtle.turnLeft()
-    for _ = 1, 19 do
-        if not turtle.forward() then
-            print("Failed to return home.")
-            return
-        end
+    for _ = 1, 14 do
+        if not moveForward() then return end
     end
     turtle.turnLeft()
     os.sleep(5)
-    for _ = 1, 5 do
-        if not turtle.forward() then
-            print("Failed to move forward while returning home.")
-            return
-        end
-    end
 end
 
 local function loop()
