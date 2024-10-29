@@ -16,7 +16,7 @@ local function findItems()
                 saplingSlot = slot
                 print("Sapling found in slot " .. slot)
             else
-                error("Not enough saplings: " .. itemDetail.count .. " - slot: ".. slot)
+                print("Not enough saplings: " .. itemDetail.name .. " - " .. itemDetail.count .. " - slot: ".. slot)
             end
             if itemDetail.name == "minecraft:coal" or itemDetail.name == "minecraft:charcoal" then
                 fuelSlot = slot
@@ -25,7 +25,7 @@ local function findItems()
                 error("No fuel")
             end
         end
-        if saplingSlot and fuelSlot then
+        if fuelSlot then
             break
         end
     end
@@ -36,7 +36,7 @@ local function hasSaplings()
 end
 
 local function refuel()
-    if turtle.getFuelLevel() < 1 and hasSaplings() then
+    if turtle.getFuelLevel() < 1 then
         turtle.select(fuelSlot)
         if not turtle.refuel(1) then
             print("Failed to refuel. Check fuel availability.")
@@ -74,18 +74,33 @@ local function startup()
     refuel()
     print("Sapling Slot: " .. tostring(saplingSlot))
     print("Fuel Slot: " .. tostring(fuelSlot))
-    if not hasSaplings() or fuelSlot == nil then
-        print("Missing saplings or fuel. Please check inventory.")
+    if fuelSlot == nil then
+        print("Missing fuel")
         return false
     end
 
-    turtle.dropDown(saplingSlot)
-    turtle.suckDown()
+    if saplingSlot then
+        local _, err = turtle.dropDown(saplingSlot); if err then error(err); return false; end
+        _, err = turtle.suckDown(); if err then error(err); return false; end
+        findItems()
+    else
+        print("No saplings found, attempting to suck from chest")
+        _, err = turtle.suckDown(); if err then error(err); return false; end
+    end
     findItems()
     turtle.forward()
-    turtle.dropDown(fuelSlot)
-    turtle.suckDown()
+    local _, err = turtle.dropDown(fuelSlot); if err then error(err); return false; end
+    _, err = turtle.suckDown(); if err then error(err); return false; end
     findItems()
+    turtle.forward()
+
+    for slot = 1, 16 do
+        if slot ~= saplingSlot and slot ~= fuelSlot then
+            turtle.select(slot)
+            local _, err = turtle.suckDown(); if err then error(err); return false; end
+            findItems()
+        end
+    end
 
     return true
 end
@@ -124,8 +139,8 @@ local function checkRowDirection(row)
     end
 end
 
-local function runThroughRow(slot)
-    if slot < 13 then
+local function runThroughRow(i)
+    if i < 13 then
         local success, err = turtle.forward()
         if not success then
             print("Failed to move forward in runThroughRow: " .. (err or "unknown error"))
@@ -162,11 +177,11 @@ end
 
 local function loop()
     for row = 1, 5 do
-        for slot = 1, 13 do
+        for block = 1, 13 do
             refuel()
             checkAndBreak()
             plantSapling()
-            runThroughRow(slot)
+            runThroughRow(block)
         end
         checkRowDirection(row)
     end
