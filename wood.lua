@@ -16,23 +16,19 @@ local function findItems()
                 saplingSlot = slot
                 print("Sapling found in slot " .. slot)
             else
-                print("Not enough saplings: " .. itemDetail.name .. " - " .. itemDetail.count .. " - slot: ".. slot)
+                print(itemDetail.name .. " - " .. itemDetail.count .. " in " .. slot)
             end
             if itemDetail.name == "minecraft:coal" or itemDetail.name == "minecraft:charcoal" then
                 fuelSlot = slot
                 print("Fuel found in slot " .. slot)
             else
-                error("No fuel")
+                print(itemDetail.name .. " - " .. itemDetail.count .. " in " .. slot)
             end
         end
         if fuelSlot then
             break
         end
     end
-end
-
-local function hasSaplings()
-    return saplingSlot ~= nil
 end
 
 local function refuel()
@@ -65,6 +61,7 @@ local function plantSapling()
             print("Cannot plant sapling. A block is obstructing the space below.")
         end
     else
+        findItems()
         print("No saplings found.")
     end
 end
@@ -82,10 +79,9 @@ local function startup()
     if saplingSlot then
         local _, err = turtle.dropDown(saplingSlot); if err then error(err); return false; end
         _, err = turtle.suckDown(); if err then error(err); return false; end
-        findItems()
     else
         print("No saplings found, attempting to suck from chest")
-        _, err = turtle.suckDown(); if err then error(err); return false; end
+        local _, err = turtle.suckDown(); if err then error(err); return false; end
     end
     findItems()
     turtle.forward()
@@ -97,8 +93,7 @@ local function startup()
     for slot = 1, 16 do
         if slot ~= saplingSlot and slot ~= fuelSlot then
             turtle.select(slot)
-            local _, err = turtle.suckDown(); if err then print(err); end
-            findItems()
+            _, err = turtle.suckDown(); if err then print(err); end
         end
     end
 
@@ -182,14 +177,13 @@ local function loop()
             checkAndBreak()
             plantSapling()
             runThroughRow(block)
-        end
-        checkRowDirection(row)
+        end; checkRowDirection(row)
     end
 end
 
 local function main()
     if startup() then
-        if loop() then
+        if loop() and saplingSlot and fuelSlot then
             if returnToHome() then
                 os.sleep(5)
             else
