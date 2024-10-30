@@ -90,11 +90,15 @@ local function startup()
     findItems()
     turtle.forward()
 
-    for slot = 1, 16 do
-        if slot ~= saplingSlot and slot ~= fuelSlot then
-            turtle.select(slot)
-            _, err = turtle.dropDown(); if err then print(err); end
+    if saplingSlot then
+        for slot = 1, 16 do
+            if slot ~= saplingSlot and slot ~= fuelSlot then
+                turtle.select(slot)
+                _, err = turtle.dropDown(); if err then print(err); end
+            end
         end
+    else
+        findItems()
     end
 
     return true
