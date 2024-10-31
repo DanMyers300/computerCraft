@@ -11,22 +11,16 @@ local function findItems()
     for slot = 1, 16 do
         local itemDetail = turtle.getItemDetail(slot)
         if itemDetail then
-            print("Found item: " .. itemDetail.name .. " in slot " .. slot)
             if itemDetail.name == "minecraft:oak_sapling" and itemDetail.count >= 25 then
-                saplingSlot = slot
-                print("Sapling found in slot " .. slot)
-            else
-                print(itemDetail.name .. " - " .. itemDetail.count .. " in " .. slot)
+                if not saplingSlot then
+                    saplingSlot = slot
+                end
             end
             if itemDetail.name == "minecraft:coal" or itemDetail.name == "minecraft:charcoal" then
-                fuelSlot = slot
-                print("Fuel found in slot " .. slot)
-            else
-                print(itemDetail.name .. " - " .. itemDetail.count .. " in " .. slot)
+                if not fuelSlot then
+                    fuelSlot = slot
+                end
             end
-        end
-        if fuelSlot then
-            break
         end
     end
 end
@@ -37,8 +31,6 @@ local function refuel()
         if not turtle.refuel(1) then
             print("Failed to refuel. Check fuel availability.")
         end
-    elseif turtle.getFuelLevel() >= 1 then
-        print("Sufficient fuel available.")
     end
 end
 
@@ -57,8 +49,6 @@ local function plantSapling()
             if not turtle.placeDown() then
                 print("Failed to plant sapling. Check the ground below.")
             end
-        else
-            print("Cannot plant sapling. A block is obstructing the space below.")
         end
     else
         findItems()
@@ -92,7 +82,8 @@ local function startup()
 
     if saplingSlot then
         for slot = 1, 16 do
-            if slot ~= saplingSlot and slot ~= fuelSlot then
+            local itemDetail = turtle.getItemDetail(slot)
+            if slot ~= saplingSlot and slot ~= fuelSlot and itemDetail.name == "minecraft:oak_sapling" then
                 turtle.select(slot)
                 _, err = turtle.dropDown(); if err then print(err); end
             end
@@ -186,8 +177,8 @@ local function loop()
 end
 
 local function main()
-    if startup() then
-        if loop() and saplingSlot and fuelSlot then
+    if startup() and saplingSlot and fuelSlot then
+        if loop() then
             if returnToHome() then
                 os.sleep(5)
             else
