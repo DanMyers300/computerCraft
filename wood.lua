@@ -2,6 +2,12 @@
 -- Turtle Woodcutter Script
 -- luacheck: ignore turtle os
 --
+-- Current status:
+--  - Able to sort inventory
+--  - Able to start with correct saplings and coal
+--  - Able to run through chunk and plant sapling in predug holes
+--  - Able to return to home
+--
 -- To Do:
 --  - Make wait time longer
 --  - Set up wood cutting function
