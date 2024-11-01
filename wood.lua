@@ -1,25 +1,33 @@
 --
 -- Turtle Woodcutter Script
--- luacheck: ignore turtle
--- luacheck: ignore os
+-- luacheck: ignore turtle os
 --
 
 local saplingSlot = nil
+local slotHasSapling = {}
+
 local fuelSlot = nil
+local slotHasFuel = {}
+
+local slotHasJunk = {}
 
 local function findItems()
-    for slot = 1, 16 do
-        local itemDetail = turtle.getItemDetail(slot)
+    print("hit findItems()")
+    for _ = 1, 16 do
+        local itemDetail = turtle.getItemDetail(_)
         if itemDetail then
             if itemDetail.name == "minecraft:oak_sapling" and itemDetail.count >= 25 then
-                if not saplingSlot then
-                    saplingSlot = slot
+                if not saplingSlot or turtle.getItemDetail(saplingSlot).count <= 1 then
+                    saplingSlot = _
                 end
-            end
-            if itemDetail.name == "minecraft:coal" or itemDetail.name == "minecraft:charcoal" then
+                table.insert(slotHasSapling, _)
+            elseif itemDetail.name == "minecraft:coal" or itemDetail.name == "minecraft:charcoal" then
                 if not fuelSlot then
-                    fuelSlot = slot
+                    fuelSlot = _
                 end
+                table.insert(slotHasFuel, _)
+            else
+                table.insert(slotHasJunk, _)
             end
         end
     end
@@ -56,43 +64,13 @@ local function plantSapling()
     end
 end
 
-local function startup()
-    findItems()
-    refuel()
-    print("Sapling Slot: " .. tostring(saplingSlot))
-    print("Fuel Slot: " .. tostring(fuelSlot))
-    if fuelSlot == nil then
-        print("Missing fuel")
-        return false
-    end
-
-    if saplingSlot then
-        local _, err = turtle.dropDown(saplingSlot); if err then error(err); return false; end
-        _, err = turtle.suckDown(); if err then error(err); return false; end
-    else
-        print("No saplings found, attempting to suck from chest")
-        local _, err = turtle.suckDown(); if err then error(err); return false; end
-    end
-    findItems()
-    turtle.forward()
-    local _, err = turtle.dropDown(fuelSlot); if err then error(err); return false; end
-    _, err = turtle.suckDown(); if err then error(err); return false; end
-    findItems()
-    turtle.forward()
-
-    if saplingSlot then
-        for slot = 1, 16 do
-            local itemDetail = turtle.getItemDetail(slot)
-            if slot ~= saplingSlot and slot ~= fuelSlot and itemDetail.name == "minecraft:oak_sapling" then
-                turtle.select(slot)
-                _, err = turtle.dropDown(); if err then print(err); end
-            end
+local function contains(table, item)
+    for _, value in ipairs(table) do
+        if value == item then
+            return true
         end
-    else
-        findItems()
     end
-
-    return true
+    return false
 end
 
 local function rowLeft()
@@ -137,6 +115,49 @@ local function runThroughRow(i)
             return false
         end
     end
+end
+
+local function startup()
+    findItems()
+    refuel()
+
+    print("Sapling Slot: " .. tostring(saplingSlot))
+    print("Fuel Slot: " .. tostring(fuelSlot))
+
+    if fuelSlot == nil then
+        print("Missing fuel")
+        return false
+    end
+
+    if saplingSlot then
+        local _, err = turtle.dropDown(saplingSlot); if err then error(err); return false; end
+        _, err = turtle.suckDown(); if err then error(err); return false; end
+    else
+        local _, err = turtle.suckDown(); if err then error(err); return false; end
+    end
+
+    findItems()
+    turtle.forward()
+
+    local _, err = turtle.dropDown(fuelSlot); if err then error(err); return false; end
+    _, err = turtle.suckDown(); if err then error(err); return false; end
+
+    findItems()
+    turtle.forward()
+
+    if saplingSlot then
+        for slot = 1, 16 do
+            if contains(slotHasJunk, slot) then
+                turtle.select(slot)
+                _, err = turtle.dropDown()
+                if err then print(err) end
+            end
+        end
+    else
+        findItems()
+    end
+
+    return true
 end
 
 local function returnToHome()
