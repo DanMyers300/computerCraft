@@ -2,22 +2,25 @@
 -- Turtle Woodcutter Script
 -- luacheck: ignore turtle os
 --
+-- To Do:
+--  - Make wait time longer
+--  - Set up wood cutting function
+--  - Make bot go underground to return to home
+--
 
 local saplingSlot = nil
-local slotHasSapling = {}
-
 local fuelSlot = nil
+local slotHasSapling = {}
 local slotHasFuel = {}
-
 local slotHasJunk = {}
 
 local function findItems()
-    print("hit findItems()")
     for _ = 1, 16 do
+        turtle.select(_)
         local itemDetail = turtle.getItemDetail(_)
         if itemDetail then
             if itemDetail.name == "minecraft:oak_sapling" and itemDetail.count >= 25 then
-                if not saplingSlot or turtle.getItemDetail(saplingSlot).count <= 1 then
+                if not saplingSlot then
                     saplingSlot = _
                 end
                 table.insert(slotHasSapling, _)
@@ -26,45 +29,18 @@ local function findItems()
                     fuelSlot = _
                 end
                 table.insert(slotHasFuel, _)
-            else
+            elseif itemDetail.name ~= "minecraft:coal" or itemDetail.name ~= "minecraft:charcoal" or itemDetail.name ~= "minecraft:oak_sapling" then
                 table.insert(slotHasJunk, _)
+            else 
+                if includes(slotHasSapling, _) then table.remove(slothasSapling, _) end
+                if includes(slotHasFuel, _) then table.remove(slotHasFuel, _) end
+                if includes(slotHasJunk, _) then table.remove(slotHasJunk, _) end
             end
         end
     end
 end
 
-local function refuel()
-    if turtle.getFuelLevel() < 1 then
-        turtle.select(fuelSlot)
-        if not turtle.refuel(1) then
-            print("Failed to refuel. Check fuel availability.")
-        end
-    end
-end
-
-local function checkAndBreak()
-    if turtle.detect() then
-        if not turtle.dig() then
-            print("Failed to dig. The block may be obstructed.")
-        end
-    end
-end
-
-local function plantSapling()
-    if saplingSlot then
-        turtle.select(saplingSlot)
-        if not turtle.detectDown() then
-            if not turtle.placeDown() then
-                print("Failed to plant sapling. Check the ground below.")
-            end
-        end
-    else
-        findItems()
-        print("No saplings found.")
-    end
-end
-
-local function contains(table, item)
+local function includes(table, item)
     for _, value in ipairs(table) do
         if value == item then
             return true
@@ -73,14 +49,35 @@ local function contains(table, item)
     return false
 end
 
+local function refuel()
+    if turtle.getFuelLevel() < 1 then
+        turtle.select(fuelSlot)
+        local _, err turtle.refuel(1); if err then error(err) end
+    end
+end
+
+local function checkAndBreak()
+    if turtle.detect() then
+        local _, err turtle.dig()
+        if err then error(err) end
+    end
+end
+
+local function plantSapling()
+    if saplingSlot then
+        turtle.select(saplingSlot)
+        if not turtle.detectDown() then
+            local _, err turtle.placeDown(); if err then error(err) end
+        end
+    else
+        error('no saplings')
+    end
+end
+
 local function rowLeft()
     turtle.turnLeft()
     for _ = 1, 3 do
-        local success, err = turtle.forward()
-        if not success then
-            print("Failed to move forward in rowLeft: " .. (err or "unknown error"))
-            return false
-        end
+        local _, err = turtle.forward(); if err then error() end
     end
     turtle.turnLeft()
 end
@@ -88,11 +85,7 @@ end
 local function rowRight()
     turtle.turnRight()
     for _ = 1, 3 do
-        local success, err = turtle.forward()
-        if not success then
-            print("Failed to move forward in rowRight: " .. (err or "unknown error"))
-            return false
-        end
+        local _, err = turtle.forward(); if err then error() end
     end
     turtle.turnRight()
 end
@@ -109,11 +102,8 @@ end
 
 local function runThroughRow(i)
     if i < 13 then
-        local success, err = turtle.forward()
-        if not success then
-            print("Failed to move forward in runThroughRow: " .. (err or "unknown error"))
-            return false
-        end
+        local _, err = turtle.forward()
+        if err then error(err) end
     end
 end
 
@@ -130,24 +120,52 @@ local function startup()
     end
 
     if saplingSlot then
-        local _, err = turtle.dropDown(saplingSlot); if err then error(err); return false; end
-        _, err = turtle.suckDown(); if err then error(err); return false; end
+        turtle.select(saplingSlot)
+        local _, err = turtle.dropDown(); if err then error(err) end
+        for _, v in ipairs(slotHasSapling) do
+            if v ~= saplingSlot then
+                turtle.select(v)
+                if turtle.getItemDetail() then
+                    _, err = turtle.dropDown(); if err then error(err) end
+                else
+                    table.remove(slotHasSapling, v)
+                end
+            end
+        end
+        _, err = turtle.suckDown(); if err then error(err) end
+        saplingSlot = nil
     else
-        local _, err = turtle.suckDown(); if err then error(err); return false; end
+        local _, err = turtle.suckDown(); if err then error(err) end
     end
 
     findItems()
     turtle.forward()
 
-    local _, err = turtle.dropDown(fuelSlot); if err then error(err); return false; end
-    _, err = turtle.suckDown(); if err then error(err); return false; end
+    if fuelSlot then
+        turtle.select(fuelSlot)
+        local _, err = turtle.dropDown(); if err then error(err) end
+        for _, v in ipairs(slotHasFuel) do
+            if v ~= fuelSlot then
+                turtle.select(v)
+                if turtle.getItemDetail() then
+                    _, err = turtle.dropDown(); if err then error(err) end
+                else
+                    table.remove(slotHasFuel, v)
+                end
+            end
+        end
+        _, err = turtle.suckDown(); if err then error(err) end
+        fuelSlot = nil
+    else
+        local _, err = turtle.suckDown(); if err then error(err) end
+    end
 
     findItems()
     turtle.forward()
 
     if saplingSlot then
         for slot = 1, 16 do
-            if contains(slotHasJunk, slot) then
+            if includes(slotHasJunk, slot) then
                 turtle.select(slot)
                 _, err = turtle.dropDown()
                 if err then print(err) end
@@ -163,54 +181,38 @@ end
 local function returnToHome()
     local function moveForward()
         refuel()
-        local success, err = turtle.forward()
-        if not success then
-            print("Error moving forward: " .. (err or "unknown error"))
-            return false
+        local _, err = turtle.forward()
+        if err then error(err) else return true end
+    end
+
+    local function moveForwardLoop(blocks)
+        for _ = 1, blocks do
+            moveForward()
         end
-        return true
     end
 
     turtle.turnLeft()
-    for _ = 1, 2 do
-        if not moveForward() then return end
-    end
+    moveForwardLoop(2)
     turtle.turnLeft()
-    for _ = 1, 14 do
-        if not moveForward() then return end
-    end
+    moveForwardLoop(14)
     turtle.turnLeft()
-    for _ = 1, 14 do
-        if not moveForward() then return end
-    end
+    moveForwardLoop(14)
     turtle.turnLeft()
 end
 
 local function loop()
+    startup()
     for row = 1, 5 do
         for block = 1, 13 do
             refuel()
             checkAndBreak()
             plantSapling()
             runThroughRow(block)
-        end; checkRowDirection(row)
-    end
-end
-
-local function main()
-    if startup() and saplingSlot and fuelSlot then
-        if loop() then
-            if returnToHome() then
-                os.sleep(5)
-            else
-                print("returntoHome failed")
-            end
-        else
-            print("Loop failed")
         end
-    else
-        print("Startup failed. Exiting script.")
+        checkRowDirection(row)
     end
+    returnToHome()
+    os.sleep(300)
 end
+while true do loop(); end
 
-main()
