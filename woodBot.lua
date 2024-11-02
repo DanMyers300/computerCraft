@@ -63,34 +63,30 @@ local function destroyTree()
     error('need to impelement')
 end
 
-local function checkAndBreak()
-    local _, info
-
-    _, info = turtle.inspect()
-    if _ then
-        if info.name == "minecraft:oak_log" then
-            couldBeTree = true
-        end
-        turtle.dig()
-    end
-
-    _, info = turtle.inspectUp()
-    if _ then
-        if info.name == "minecraft:oak_log" and couldBeTree then
-            destroyTree()
-        end
-        turtle.digUp()
-    end
-
-    couldBeTree = false
-end
-
 local function moveForward(blocks)
+    local i, info
+
     refuel()
     for _ = 1, blocks do
-        checkAndBreak()
-        local _, err = turtle.forward()
-        if err then error(err) end
+        i, info = turtle.inspect()
+        if i then
+            if info.name == "minecraft:oak_log" then
+                couldBeTree = true
+            end
+            turtle.dig()
+        end
+
+        local a, err = turtle.forward()
+        if not a then error(err) end
+
+         i, info = turtle.inspectUp()
+         if i then
+             if info.name == "minecraft:oak_log" and couldBeTree then
+                 destroyTree()
+             end
+             turtle.digUp()
+             couldBeTree = false
+         end
     end
 end
 
