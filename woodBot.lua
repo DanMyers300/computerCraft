@@ -84,9 +84,9 @@ local function moveForward(blocks)
                  destroyTree()
              end
              turtle.digUp()
-             couldBeTree = false
          end
     end
+    couldBeTree = false
 end
 
 local function plantSapling()
