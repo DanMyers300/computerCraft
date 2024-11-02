@@ -59,15 +59,6 @@ local function refuel()
     end
 end
 
-local function moveForward(blocks)
-    refuel()
-    for _ = 1, blocks do
-        checkAndBreak()
-        local _, err = turtle.forward()
-        if err then error(err) end
-    end
-end
-
 local function destroyTree()
     error('need to impelement')
 end
@@ -100,6 +91,15 @@ local function checkAndBreak()
     end
 
     couldBeTree = false
+end
+
+local function moveForward(blocks)
+    refuel()
+    for _ = 1, blocks do
+        checkAndBreak()
+        local _, err = turtle.forward()
+        if err then error(err) end
+    end
 end
 
 local function plantSapling()
