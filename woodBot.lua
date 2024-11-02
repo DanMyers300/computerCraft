@@ -56,7 +56,6 @@ end
 
 local function moveForward(blocks)
     refuel()
-    if blocks == nil then blocks = 1 end
     for _ = 1, blocks do
         local _, err = turtle.forward()
         if err then error(err) else return true end
@@ -105,7 +104,7 @@ end
 
 local function runThroughRow(i)
     if i < 13 then
-        moveForward()
+        moveForward(1)
     end
 end
 
@@ -173,10 +172,10 @@ local function startup()
     refuel()
     ensureSapling()
     findItems()
-    moveForward()
+    moveForward(1)
     ensureFuel()
     findItems()
-    moveForward()
+    moveForward(1)
     dumpJunk()
 end
 
