@@ -54,7 +54,7 @@ local function refuel()
     end
 end
 
-local function moveForward(blocks)
+local function moveForward(blocks = 1)
     refuel()
     for _ = 1, blocks do
         local _, err = turtle.forward()
