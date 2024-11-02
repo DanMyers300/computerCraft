@@ -2,10 +2,10 @@
 
 local saplingSlot = nil
 local fuelSlot = nil
+local couldBeTree = false
 local slotHasSapling = {}
 local slotHasFuel = {}
 local slotHasJunk = {}
---local couldBeTree
 
 local function includes(table, item)
     for _, value in ipairs(table) do
