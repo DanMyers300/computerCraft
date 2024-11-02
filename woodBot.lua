@@ -1,5 +1,4 @@
 -- luacheck: ignore turtle os
-
 local saplingSlot = nil
 local fuelSlot = nil
 local couldBeTree = false
@@ -8,11 +7,7 @@ local slotHasFuel = {}
 local slotHasJunk = {}
 
 local function includes(table, item)
-    for _, value in ipairs(table) do
-        if value == item then
-            return true
-        end
-    end
+    for _, value in ipairs(table) do if value == item then return true end end
     return false
 end
 
@@ -21,15 +16,13 @@ local function findItems()
         turtle.select(_)
         local itemDetail = turtle.getItemDetail(_)
         if itemDetail then
-            if itemDetail.name == "minecraft:oak_sapling" and itemDetail.count >= 25 then
-                if not saplingSlot then
-                    saplingSlot = _
-                end
+            if itemDetail.name == "minecraft:oak_sapling" and itemDetail.count >=
+                25 then
+                if not saplingSlot then saplingSlot = _ end
                 table.insert(slotHasSapling, _)
-            elseif itemDetail.name == "minecraft:coal" or itemDetail.name == "minecraft:charcoal" then
-                if not fuelSlot then
-                    fuelSlot = _
-                end
+            elseif itemDetail.name == "minecraft:coal" or itemDetail.name ==
+                "minecraft:charcoal" then
+                if not fuelSlot then fuelSlot = _ end
                 table.insert(slotHasFuel, _)
             elseif itemDetail.name ~= "minecraft:coal" then
                 if itemDetail.name ~= "minecraft:charcoal" then
@@ -38,9 +31,15 @@ local function findItems()
                     end
                 end
             else
-                if includes(slotHasSapling, _) then table.remove(slotHasSapling, _) end
-                if includes(slotHasFuel, _) then table.remove(slotHasFuel, _) end
-                if includes(slotHasJunk, _) then table.remove(slotHasJunk, _) end
+                if includes(slotHasSapling, _) then
+                    table.remove(slotHasSapling, _)
+                end
+                if includes(slotHasFuel, _) then
+                    table.remove(slotHasFuel, _)
+                end
+                if includes(slotHasJunk, _) then
+                    table.remove(slotHasJunk, _)
+                end
             end
         end
     end
@@ -55,13 +54,12 @@ local function refuel()
 
     if turtle.getFuelLevel() < 1 then
         turtle.select(fuelSlot)
-        local _, err = turtle.refuel(1); if not _ then error(err) end
+        local _, err = turtle.refuel(1);
+        if not _ then error(err) end
     end
 end
 
-local function destroyTree()
-    error('need to impelement')
-end
+local function destroyTree() error('need to impelement') end
 
 local function moveForward(blocks)
     refuel()
@@ -72,19 +70,22 @@ local function moveForward(blocks)
             if info.name == "minecraft:oak_log" then
                 couldBeTree = true
             end
-            turtle.dig()
+            _, err = turtle.dig()
+            if not _ then error(err) end
         end
 
         local a, err = turtle.forward()
         if not a then error(err) end
 
-         _, info = turtle.inspectUp()
-         if _ then
-             if info.name == "minecraft:oak_log" and couldBeTree then
-                 destroyTree()
-             end
-             turtle.digUp()
-         end
+        _, info = turtle.inspectUp()
+        if _ then
+            if info.name == "minecraft:oak_log" and couldBeTree then
+                destroyTree()
+            else
+                _, err = turtle.digUp()
+                if not _ then error(err) end
+            end
+        end
     end
     couldBeTree = false
 end
@@ -93,7 +94,8 @@ local function plantSapling()
     if saplingSlot then
         turtle.select(saplingSlot)
         if not turtle.detectDown() then
-            local _, err = turtle.placeDown(); if not _ then error(err) end
+            local _, err = turtle.placeDown();
+            if not _ then error(err) end
         end
     else
         error('no saplings')
@@ -114,51 +116,55 @@ local function checkRowDirection(row)
     end
 end
 
-local function runThroughRow(i)
-    if i < 13 then
-        moveForward(1)
-    end
-end
+local function runThroughRow(i) if i < 13 then moveForward(1) end end
 
 local function ensureSapling()
     if saplingSlot then
         turtle.select(saplingSlot)
-        local _, err = turtle.dropDown(); if err then error(err) end
+        local _, err = turtle.dropDown();
+        if err then error(err) end
         for _, v in ipairs(slotHasSapling) do
             if v ~= saplingSlot then
                 turtle.select(v)
                 if turtle.getItemDetail() then
-                    _, err = turtle.dropDown(); if err then error(err) end
+                    _, err = turtle.dropDown();
+                    if err then error(err) end
                 else
                     table.remove(slotHasSapling, v)
                 end
             end
         end
-        _, err = turtle.suckDown(); if err then error(err) end
+        _, err = turtle.suckDown();
+        if err then error(err) end
         saplingSlot = nil
     else
-        local _, err = turtle.suckDown(); if err then error(err) end
+        local _, err = turtle.suckDown();
+        if err then error(err) end
     end
 end
 
 local function ensureFuel()
     if fuelSlot then
         turtle.select(fuelSlot)
-        local _, err = turtle.dropDown(); if err then error(err) end
+        local _, err = turtle.dropDown();
+        if err then error(err) end
         for _, v in ipairs(slotHasFuel) do
             if v ~= fuelSlot then
                 turtle.select(v)
                 if turtle.getItemDetail() then
-                    _, err = turtle.dropDown(); if err then error(err) end
+                    _, err = turtle.dropDown();
+                    if err then error(err) end
                 else
                     table.remove(slotHasFuel, v)
                 end
             end
         end
-        _, err = turtle.suckDown(); if err then error(err) end
+        _, err = turtle.suckDown();
+        if err then error(err) end
         fuelSlot = nil
     else
-        local _, err = turtle.suckDown(); if err then error(err) end
+        local _, err = turtle.suckDown();
+        if err then error(err) end
     end
 end
 
