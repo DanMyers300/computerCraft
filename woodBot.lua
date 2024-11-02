@@ -64,12 +64,11 @@ local function destroyTree()
 end
 
 local function moveForward(blocks)
-    local i, info
-
     refuel()
+
     for _ = 1, blocks do
-        i, info = turtle.inspect()
-        if i then
+        local _, info = turtle.inspect()
+        if _ then
             if info.name == "minecraft:oak_log" then
                 couldBeTree = true
             end
@@ -79,8 +78,8 @@ local function moveForward(blocks)
         local a, err = turtle.forward()
         if not a then error(err) end
 
-         i, info = turtle.inspectUp()
-         if i then
+         _, info = turtle.inspectUp()
+         if _ then
              if info.name == "minecraft:oak_log" and couldBeTree then
                  destroyTree()
              end
