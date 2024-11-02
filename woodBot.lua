@@ -5,7 +5,7 @@ local fuelSlot = nil
 local slotHasSapling = {}
 local slotHasFuel = {}
 local slotHasJunk = {}
---local detectedTree
+--local couldBeTree
 
 local function includes(table, item)
     for _, value in ipairs(table) do
@@ -62,25 +62,45 @@ end
 local function moveForward(blocks)
     refuel()
     for _ = 1, blocks do
+        checkAndBreak()
         local _, err = turtle.forward()
         if err then error(err) end
     end
 end
 
---local function checkAndBreak()
---    local _, info
---    _, info = turtle.inspect()
---    if _ then
---        if type(info) == table then
---            if info.name == "minecraft:oak_log" then
---                detectedTree = true
---            end
---            turtle.dig()
---        else
---            error(info)
---        end
---    end
---end
+local function destroyTree()
+    error('need to impelement')
+end
+
+local function checkAndBreak()
+    local _, info
+
+    _, info = turtle.inspect()
+    if _ then
+        if type(info) == table then
+            if info.name == "minecraft:oak_log" then
+                couldBeTree = true
+            end
+            turtle.dig()
+        else
+            error(info)
+        end
+    end
+
+    _, info = turtle.inspectUp()
+    if _ then
+        if type(info) == table then
+            if info.name == "minecraft:oak_log" and couldBeTree then
+                destroyTree()
+            end
+            turtle.digUp()
+        else
+            error(info)
+        end
+    end
+
+    couldBeTree = false
+end
 
 local function plantSapling()
     if saplingSlot then
