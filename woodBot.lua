@@ -68,26 +68,18 @@ local function checkAndBreak()
 
     _, info = turtle.inspect()
     if _ then
-        if type(info) == table then
-            if info.name == "minecraft:oak_log" then
-                couldBeTree = true
-            end
-            turtle.dig()
-        else
-            error(info)
+        if info.name == "minecraft:oak_log" then
+            couldBeTree = true
         end
+        turtle.dig()
     end
 
     _, info = turtle.inspectUp()
     if _ then
-        if type(info) == table then
-            if info.name == "minecraft:oak_log" and couldBeTree then
-                destroyTree()
-            end
-            turtle.digUp()
-        else
-            error(info)
+        if info.name == "minecraft:oak_log" and couldBeTree then
+            destroyTree()
         end
+        turtle.digUp()
     end
 
     couldBeTree = false
