@@ -30,14 +30,20 @@ local function main()
         end
     end
 
+    local function moveForward(blocks)
+        for _ = 1, blocks do
+            refuel()
+            _, err = turtle.forward()
+            if err then error(err) end
+        end
+    end
+
     refuel()
-    _, err = turtle.forward()
-    if err then error(err) end
+    moveForward(1)
     if turtle.getItemDetail(fuelSlot).count <= 8 then
         turtle.suckDown()
     end
-    _, err = turtle.forward()
-    if err then error(err) end
+    moveForward(1)
 
     refuel()
     for slot = 1, 16 do
@@ -60,12 +66,7 @@ local function main()
     refuel()
     turtle.turnRight()
     turtle.up()
-    _, err = turtle.forward()
-    if err then error(err) end
-    _, err = turtle.forward()
-    if err then error(err) end
-    _, err = turtle.forward()
-    if err then error(err) end
+    moveForward(3)
 
     for slot = 1, 16 do
         local item = turtle.getItemDetail(slot)
@@ -77,18 +78,10 @@ local function main()
 
     refuel()
     turtle.turnRight()
-    _, err = turtle.forward()
-    if err then error(err) end
-    _, err = turtle.forward()
-    if err then error(err) end
+    moveForward(2)
     refuel()
     turtle.turnRight()
-    _, err = turtle.forward()
-    if err then error(err) end
-    _, err = turtle.forward()
-    if err then error(err) end
-    _, err = turtle.forward()
-    if err then error(err) end
+    moveForward(3)
     refuel()
     turtle.down()
     turtle.turnRight()
