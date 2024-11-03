@@ -111,21 +111,22 @@ local function moveForward(blocks)
         if _ then
             if info.name == "minecraft:oak_log" then
                 couldBeTree = true
+                print("hit could be tree")
             end
             local _, err = turtle.dig()
             if err then error(err) end
+            print("hit dig in forward inspect")
         end
 
+        print("before more forward")
         local a, err = turtle.forward()
         if not a then error(err) end
+        print("after move forward")
 
         _, info = turtle.inspectUp()
         if _ then
             if info.name == "minecraft:oak_log" and couldBeTree then
                 destroyTree()
-            else
-                _, err = turtle.digUp()
-                if not _ then error(err) end
             end
         end
     end
