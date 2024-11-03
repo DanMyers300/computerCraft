@@ -1,5 +1,9 @@
+-- luacheck: ignore turtle os
+
 local function main()
     local _, err
+    local fuelSlot = nil
+
     local importantItems = {
         "minecraft:oak_log",
         "minecraft:oak_sapling",
@@ -9,9 +13,8 @@ local function main()
 
     local function refuel()
         if turtle.getFuelLevel() < 1 then
-            local fuelSlot = nil
             for slot = 1, 16 do
-                item = turtle.getItemDetail(slot)
+                local item = turtle.getItemDetail(slot)
                 if item and item.name == "minecraft:coal" or item.name == "minecraft:charcoal" then
                     fuelSlot = slot
                 end
@@ -21,7 +24,7 @@ local function main()
                 return false
             else
                 turtle.select(fuelSlot)
-                local _, err = turtle.refuel(1);
+                _, err = turtle.refuel(1);
                 if not _ then error(err) end
             end
         end
