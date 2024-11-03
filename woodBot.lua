@@ -86,7 +86,6 @@ local function destroyTree()
         if err then error(err) end
         plantSapling()
     end
-    moveUp()
 
     while true do
         _, err = turtle.inspectUp()
@@ -111,17 +110,13 @@ local function moveForward(blocks)
         if _ then
             if info.name == "minecraft:oak_log" then
                 couldBeTree = true
-                print("hit could be tree")
             end
             local _, err = turtle.dig()
             if err then error(err) end
-            print("hit dig in forward inspect")
         end
 
-        print("before more forward")
         local a, err = turtle.forward()
         if not a then error(err) end
-        print("after move forward")
 
         _, info = turtle.inspectUp()
         if _ then
