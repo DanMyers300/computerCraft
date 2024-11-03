@@ -1,4 +1,4 @@
--- luacheck: ignore turtle os
+-- luacheck: ignore turtle
 
 local function main()
     local _, err
@@ -40,9 +40,6 @@ local function main()
 
     refuel()
     moveForward(1)
-    if turtle.getItemDetail(fuelSlot).count <= 8 then
-        turtle.suckDown()
-    end
     for slot = 1, 16 do
         local item = turtle.getItemDetail(slot)
         if item then
@@ -53,6 +50,9 @@ local function main()
                 end
             end
         end
+    end
+    if turtle.getItemDetail(fuelSlot).count <= 8 then
+        turtle.suckDown()
     end
     moveForward(1)
 
