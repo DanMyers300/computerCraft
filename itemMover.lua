@@ -32,7 +32,7 @@ local function main()
         end
         if turtle.getFuelLevel() < 1 then
             turtle.select(fuelSlot)
-            local _, err = turtle.refuel(1);
+            _, err = turtle.refuel(1);
             if not _ then error(err) end
         end
     end
