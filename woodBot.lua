@@ -249,5 +249,5 @@ local function loop()
     returnToHome()
 end
 
-while true do loop(); end
+while true do loop() end
 
