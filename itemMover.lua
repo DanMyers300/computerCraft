@@ -4,13 +4,6 @@ local function main()
     local _, err
     local fuelSlot = nil
 
-    local importantItems = {
-        "minecraft:oak_log",
-        "minecraft:oak_sapling",
-        "minecraft:coal",
-        "minecraft:charcoal",
-    }
-
     local function findItems()
         for _ = 1, 16 do
             turtle.select(_)
@@ -37,13 +30,6 @@ local function main()
         end
     end
 
-    local function doesNotInclude(table, item)
-        for _, value in ipairs(table) do
-            if value ~= item then return true end
-        end
-        return false
-    end
-
     refuel()
     _, err = turtle.forward()
     if err then error(err) end
@@ -61,7 +47,7 @@ local function main()
 
     for slot = 1, 16 do
         local item = turtle.getItemDetail(slot)
-        if item and doesNotInclude(importantItems, item.name) then
+        if item then
             turtle.select(slot)
             turtle.dropDown()
         end
@@ -69,7 +55,7 @@ local function main()
 
     refuel()
     turtle.turnRight()
-    turtle.Up()
+    turtle.up()
     _, err = turtle.forward()
     if err then error(err) end
     _, err = turtle.forward()
