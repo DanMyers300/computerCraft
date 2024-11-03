@@ -7,6 +7,26 @@ local function main()
         "minecraft:charcoal",
     }
 
+    local function refuel()
+        if turtle.getFuelLevel() < 1 then
+            local fuelSlot = nil
+            for slot = 1, 16 do
+                item = turtle.getItemDetail(slot)
+                if item and item.name == "minecraft:coal" or item.name == "minecraft:charcoal" then
+                    fuelSlot = slot
+                end
+            end
+            if fuelSlot == nil then
+                print("Missing fuel")
+                return false
+            else
+                turtle.select(fuelSlot)
+                local _, err = turtle.refuel(1);
+                if not _ then error(err) end
+            end
+        end
+    end
+
     local function doesNotInclude(table, item)
         for _, value in ipairs(table) do
             if value ~= item then return true end
@@ -14,11 +34,13 @@ local function main()
         return false
     end
 
+    refuel()
     _, err = turtle.forward()
     if err then error(err) end
     _, err = turtle.forward()
     if err then error(err) end
 
+    refuel()
     for slot = 1, 16 do
         turtle.select(slot)
         turtle.suckDown()
@@ -32,6 +54,7 @@ local function main()
         end
     end
 
+    refuel()
     turtle.turnRight()
     turtle.Up()
     _, err = turtle.forward()
@@ -49,11 +72,13 @@ local function main()
         end
     end
 
+    refuel()
     turtle.turnRight()
     _, err = turtle.forward()
     if err then error(err) end
     _, err = turtle.forward()
     if err then error(err) end
+    refuel()
     turtle.turnRight()
     _, err = turtle.forward()
     if err then error(err) end
@@ -61,6 +86,7 @@ local function main()
     if err then error(err) end
     _, err = turtle.forward()
     if err then error(err) end
+    refuel()
     turtle.Down()
     turtle.turnRight()
 
