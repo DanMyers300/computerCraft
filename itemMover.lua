@@ -37,6 +37,9 @@ local function main()
     refuel()
     _, err = turtle.forward()
     if err then error(err) end
+    if turtle.getItemDetail(fuelSlot).count <= 8 then
+        turtle.suckDown()
+    end
     _, err = turtle.forward()
     if err then error(err) end
 
