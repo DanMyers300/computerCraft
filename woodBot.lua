@@ -73,6 +73,7 @@ local function destroyTree()
     local blocksMovedUp = 0
 
     local function moveUp()
+        refuel()
         local _, err = turtle.up()
         if err then error(err) end
         blocksMovedUp = blocksMovedUp + 1
@@ -95,6 +96,7 @@ local function destroyTree()
             moveUp()
         else
             for _ = 1, blocksMovedUp do
+                refuel()
                 _, err = turtle.down()
                 if err then error(err) end
             end
