@@ -102,4 +102,4 @@ local function main()
     end
 end
 
-main()
+while true do main() end
