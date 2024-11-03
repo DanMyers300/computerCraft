@@ -88,7 +88,7 @@ local function main()
     _, err = turtle.forward()
     if err then error(err) end
     refuel()
-    turtle.Down()
+    turtle.down()
     turtle.turnRight()
 
     for slot = 1, 16 do
