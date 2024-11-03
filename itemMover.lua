@@ -16,7 +16,7 @@ local function main()
             for slot = 1, 16 do
                 turtle.select(slot)
                 local item = turtle.getItemDetail()
-                if item and item.name == "minecraft:coal" or item.name == "minecraft:charcoal" then
+                if item ~= nil and item.name == "minecraft:coal" or item.name == "minecraft:charcoal" then
                     fuelSlot = slot
                 end
             end
