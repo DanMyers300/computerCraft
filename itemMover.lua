@@ -11,23 +11,29 @@ local function main()
         "minecraft:charcoal",
     }
 
-    local function refuel()
-        if turtle.getFuelLevel() < 1 then
-            for slot = 1, 16 do
-                turtle.select(slot)
-                local item = turtle.getItemDetail()
-                if item ~= nil and item.name == "minecraft:coal" or item.name == "minecraft:charcoal" then
-                    fuelSlot = slot
+    local function findItems()
+        for _ = 1, 16 do
+            turtle.select(_)
+            local itemDetail = turtle.getItemDetail(_)
+            if itemDetail then
+                if itemDetail.name == "minecraft:coal" or itemDetail.name ==
+                    "minecraft:charcoal" then
+                    if not fuelSlot then fuelSlot = _ end
                 end
             end
-            if fuelSlot == nil then
-                print("Missing fuel")
-                return false
-            else
-                turtle.select(fuelSlot)
-                _, err = turtle.refuel(1);
-                if not _ then error(err) end
-            end
+        end
+    end
+
+    local function refuel()
+        findItems()
+        if fuelSlot == nil then
+            print("Missing fuel")
+            return false
+        end
+        if turtle.getFuelLevel() < 1 then
+            turtle.select(fuelSlot)
+            local _, err = turtle.refuel(1);
+            if not _ then error(err) end
         end
     end
 
