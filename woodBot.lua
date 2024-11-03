@@ -46,12 +46,10 @@ local function findItems()
 end
 
 local function refuel()
-
     if fuelSlot == nil then
         print("Missing fuel")
         return false
     end
-
     if turtle.getFuelLevel() < 1 then
         turtle.select(fuelSlot)
         local _, err = turtle.refuel(1);
@@ -59,7 +57,51 @@ local function refuel()
     end
 end
 
-local function destroyTree() error('need to impelement') end
+local function plantSapling()
+    if saplingSlot then
+        turtle.select(saplingSlot)
+        if not turtle.detectDown() then
+            local _, err = turtle.placeDown();
+            if not _ then error(err) end
+        end
+    else
+        error('no saplings')
+    end
+end
+
+local function destroyTree()
+    local blocksMovedUp = 0
+
+    local function moveUp()
+        local _, err = turtle.up()
+        if err then error(err) end
+        blocksMovedUp = blocksMovedUp + 1
+    end
+
+    refuel()
+
+    local _, err = turtle.inspectDown()
+    if _ and err.name == "minecraft:oak_log" or err.name ~= "minecraft:grass_block" then
+        _, err = turtle.digDown()
+        if err then error(err) end
+        plantSapling()
+    end
+    moveUp()
+
+    while true do
+        _, err = turtle.inspectUp()
+        if _ and err.name ~= "minecraft:oak_leaves" then
+            _, err = turtle.digUp()
+            if err then error(err) end
+            moveUp()
+        else
+            for _ in blocksMovedUp do
+                turtle.down()
+            end
+            break
+        end
+    end
+end
 
 local function moveForward(blocks)
     refuel()
@@ -70,8 +112,8 @@ local function moveForward(blocks)
             if info.name == "minecraft:oak_log" then
                 couldBeTree = true
             end
-            _, err = turtle.dig()
-            if not _ then error(err) end
+            local _, err = turtle.dig()
+            if err then error(err) end
         end
 
         local a, err = turtle.forward()
@@ -87,19 +129,8 @@ local function moveForward(blocks)
             end
         end
     end
-    couldBeTree = false
-end
 
-local function plantSapling()
-    if saplingSlot then
-        turtle.select(saplingSlot)
-        if not turtle.detectDown() then
-            local _, err = turtle.placeDown();
-            if not _ then error(err) end
-        end
-    else
-        error('no saplings')
-    end
+    if couldBeTree then couldBeTree = false end
 end
 
 local function checkRowDirection(row)
