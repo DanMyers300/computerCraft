@@ -42,13 +42,13 @@ local function main()
     moveForward(1)
     if turtle.getItemDetail(fuelSlot).count <= 8 then
         turtle.suckDown()
-        for slot = 1, 16 do
-            local item = turtle.getItemDetail(slot)
-            if item and item.name == "minecraft:charcoal" or item.name == "minecraft:coal" then
-                if slot ~= fuelSlot then
-                    turtle.select(slot)
-                    turtle.dropDown()
-                end
+    end
+    for slot = 1, 16 do
+        local item = turtle.getItemDetail(slot)
+        if item and item.name == "minecraft:charcoal" or item.name == "minecraft:coal" then
+            if slot ~= fuelSlot then
+                turtle.select(slot)
+                turtle.dropDown()
             end
         end
     end
