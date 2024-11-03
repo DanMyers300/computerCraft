@@ -95,7 +95,8 @@ local function destroyTree()
             moveUp()
         else
             for _ = 1, blocksMovedUp do
-                turtle.down()
+                _, err = turtle.down()
+                if err then error(err) end
             end
             break
         end
