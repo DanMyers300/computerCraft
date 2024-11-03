@@ -118,7 +118,14 @@ local function moveForward(blocks)
         end
 
         local a, err = turtle.forward()
-        if not a then error(err) end
+        if err then
+            if err == string.find(err, "obstructed") then
+                turtle.dig()
+                turtle.forward()
+            else
+                error(err)
+            end
+        end
 
         _, info = turtle.inspectUp()
         if _ then
