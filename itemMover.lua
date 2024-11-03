@@ -14,7 +14,8 @@ local function main()
     local function refuel()
         if turtle.getFuelLevel() < 1 then
             for slot = 1, 16 do
-                local item = turtle.getItemDetail(slot)
+                turtle.select(slot)
+                local item = turtle.getItemDetail()
                 if item and item.name == "minecraft:coal" or item.name == "minecraft:charcoal" then
                     fuelSlot = slot
                 end
