@@ -244,7 +244,6 @@ local function loop()
         checkRowDirection(row)
     end
     returnToHome()
-    os.sleep(300)
 end
 
 while true do loop(); end
