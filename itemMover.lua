@@ -49,8 +49,10 @@ local function main()
         local item = turtle.getItemDetail(slot)
         if item then
             if item.name ~= "minecraft:coal" and item.name ~= "minecraft:charcoal" then
-                turtle.select(slot)
-                turtle.dropDown()
+                if item.name ~= "minecraft:oak_sapling" and item.name ~= "minecraft:oak_log" then
+                    turtle.select(slot)
+                    turtle.dropDown()
+                end
             end
         end
     end
