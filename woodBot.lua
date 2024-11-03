@@ -106,10 +106,9 @@ local function destroyTree()
 end
 
 local function moveForward(blocks)
-    refuel()
-
     for _ = 1, blocks do
         local _, info = turtle.inspect()
+        refuel()
         if _ then
             if info.name == "minecraft:oak_log" then
                 couldBeTree = true
@@ -249,5 +248,5 @@ local function loop()
     returnToHome()
 end
 
-while true do loop() end
+while true do loop(); end
 
